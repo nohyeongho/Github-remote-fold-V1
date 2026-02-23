@@ -495,30 +495,13 @@
         }
 
         /* Column Drag Resize */
-        .resizable-th {
-            position: relative;
-        }
-
-        .col-resize-handle {
-            position: absolute;
-            right: -3px;
-            top: 0;
-            bottom: 0;
-            width: 6px;
-            cursor: col-resize;
-            z-index: 10;
-            background: transparent;
-            transition: background 0.15s;
-        }
-
-        .col-resize-handle:hover,
-        .col-resize-handle.active {
-            background: rgba(74, 111, 165, 0.5);
-        }
-
         .col-resizing {
             cursor: col-resize !important;
             user-select: none !important;
+        }
+
+        .col-resizing * {
+            cursor: col-resize !important;
         }
     </style>
 </head>
@@ -849,20 +832,14 @@
                 }
                 controlsHtml += '</div>';
 
-                // colgroup 기반 테이블 (드래그 리사이즈 핸들 포함)
+                // colgroup 기반 테이블
                 let tableHtml = `<div class="tbl-scroll" data-table-id="${tableId}"><table style="border-collapse:collapse; table-layout:fixed;" class="xfe_just_info"><colgroup>`;
                 for (let c = 0; c < maxCols; c++) {
                     tableHtml += `<col style="width:${defaultWidth}px;">`;
                 }
                 tableHtml += '</colgroup><thead><tr>';
-                rows[0].forEach((cell, ci) => {
-                    tableHtml += `<th class="resizable-th" style="border:1px solid #ccc; padding:8px; background:#ddd;">${cell}`;
-                    tableHtml += `<div class="col-resize-handle" data-table="${tableId}" data-col="${ci}" contenteditable="false"></div></th>`;
-                });
-                for (let i = rows[0].length; i < maxCols; i++) {
-                    tableHtml += `<th class="resizable-th" style="border:1px solid #ccc; padding:8px; background:#ddd;">&nbsp;`;
-                    tableHtml += `<div class="col-resize-handle" data-table="${tableId}" data-col="${i}" contenteditable="false"></div></th>`;
-                }
+                rows[0].forEach(cell => tableHtml += `<th style="border:1px solid #ccc; padding:8px; background:#ddd;">${cell}</th>`);
+                for (let i = rows[0].length; i < maxCols; i++) tableHtml += '<th style="border:1px solid #ccc; padding:8px; background:#ddd;">&nbsp;</th>';
                 tableHtml += '</tr></thead><tbody>';
                 for (let i = 1; i < rows.length; i++) {
                     tableHtml += '<tr>';
@@ -872,8 +849,8 @@
                 }
                 tableHtml += '</tbody></table></div><p><br></p>';
                 insertHTML(controlsHtml + tableHtml);
-                // 드래그 리사이즈 핸들 초기화
-                setTimeout(() => initColResize(tableId), 50);
+                // 드래그 리사이즈 초기화
+                setTimeout(() => initTableResize(tableId), 50);
                 return;
             }
             // Image paste
@@ -908,31 +885,86 @@
             }
         }
 
-        // --- Column Drag Resize ---
+        // --- Column Drag Resize (이벤트 위임 방식) ---
         let colResizeState = null;
 
-        function initColResize(tableId) {
-            const handles = document.querySelectorAll(`.col-resize-handle[data-table="${tableId}"]`);
-            handles.forEach(handle => {
-                handle.addEventListener('mousedown', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const colIdx = parseInt(handle.dataset.col);
-                    const wrapper = document.querySelector(`[data-table-id="${tableId}"]`);
-                    if (!wrapper) return;
-                    const col = wrapper.querySelectorAll('colgroup col')[colIdx];
-                    if (!col) return;
-                    const startWidth = col.offsetWidth || parseInt(col.style.width) || 100;
-                    colResizeState = {
-                        tableId: tableId,
-                        colIndex: colIdx,
-                        startX: e.clientX,
-                        startWidth: startWidth,
-                        handle: handle
-                    };
-                    handle.classList.add('active');
-                    document.body.classList.add('col-resizing');
-                });
+        function getCellColIndex(cell) {
+            // 셀이 속한 열 인덱스 반환
+            let idx = 0;
+            let prev = cell.previousElementSibling;
+            while (prev) {
+                idx++;
+                prev = prev.previousElementSibling;
+            }
+            return idx;
+        }
+
+        function getTableIdFromCell(cell) {
+            const tblScroll = cell.closest('.tbl-scroll');
+            return tblScroll ? tblScroll.getAttribute('data-table-id') : null;
+        }
+
+        function isNearRightBorder(cell, mouseX) {
+            const rect = cell.getBoundingClientRect();
+            return (rect.right - mouseX) <= 6;
+        }
+
+        function isNearLeftBorder(cell, mouseX) {
+            const rect = cell.getBoundingClientRect();
+            return (mouseX - rect.left) <= 6;
+        }
+
+        function initTableResize(tableId) {
+            const wrapper = document.querySelector(`[data-table-id="${tableId}"]`);
+            if (!wrapper) return;
+            const table = wrapper.querySelector('table');
+            if (!table) return;
+
+            // 마우스 이동 시 경계선 근처면 커서 변경
+            table.addEventListener('mousemove', (e) => {
+                if (colResizeState) return; // 드래그 중에는 무시
+                const cell = e.target.closest('th, td');
+                if (!cell) { table.style.cursor = ''; return; }
+                if (isNearRightBorder(cell, e.clientX)) {
+                    table.style.cursor = 'col-resize';
+                } else if (isNearLeftBorder(cell, e.clientX) && cell.previousElementSibling) {
+                    table.style.cursor = 'col-resize';
+                } else {
+                    table.style.cursor = '';
+                }
+            });
+
+            table.addEventListener('mouseleave', () => {
+                if (!colResizeState) table.style.cursor = '';
+            });
+
+            // 마우스 다운 시 드래그 시작
+            table.addEventListener('mousedown', (e) => {
+                const cell = e.target.closest('th, td');
+                if (!cell) return;
+
+                let targetColIdx = -1;
+                if (isNearRightBorder(cell, e.clientX)) {
+                    targetColIdx = getCellColIndex(cell);
+                } else if (isNearLeftBorder(cell, e.clientX) && cell.previousElementSibling) {
+                    targetColIdx = getCellColIndex(cell) - 1;
+                }
+
+                if (targetColIdx < 0) return;
+                e.preventDefault();
+                e.stopPropagation();
+
+                // 헤더 첫 행의 실제 렌더링된 너비 사용 (갑자기 커지는 버그 방지)
+                const headerCells = table.querySelectorAll('thead tr:first-child th');
+                const startWidth = headerCells[targetColIdx] ? headerCells[targetColIdx].getBoundingClientRect().width : 100;
+
+                colResizeState = {
+                    tableId: tableId,
+                    colIndex: targetColIdx,
+                    startX: e.clientX,
+                    startWidth: startWidth
+                };
+                document.body.classList.add('col-resizing');
             });
         }
 
@@ -946,7 +978,6 @@
 
         window.addEventListener('mouseup', () => {
             if (colResizeState) {
-                colResizeState.handle.classList.remove('active');
                 document.body.classList.remove('col-resizing');
                 colResizeState = null;
             }
