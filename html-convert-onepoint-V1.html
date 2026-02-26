@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- Use Marked.js for Markdown parsing (Specific version for stability) -->
     <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    <!-- html2canvas for preview-to-image copy -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
     <style type="text/css">
         @import url(https://fonts.googleapis.com/earlyaccess/notosanskr.css);
@@ -1066,6 +1068,9 @@
         <div class="preview-panel" id="previewPanel">
             <h2 class="panel-title">
                 기기 미리보기
+                <button id="btnCopyPreview" onclick="copyPreview()" title="미리보기 내용을 이미지로 복사하여 PPT에 붙여넣기"
+                    style="font-size: 13px; font-weight: 600; padding: 6px 14px; background: #4caf50; color: white; border: none; border-radius: 6px; cursor: pointer; display: none; margin-left: 10px; transition: opacity 0.2s;"
+                    onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">📋 미리보기 복사 (PPT용)</button>
             </h2>
             <div class="preview-frame" id="previewContainer">
                 <div style="padding: 40px; text-align: center; color: #999;">
@@ -1462,6 +1467,9 @@ ${sectionsHtml}`;
 
             document.getElementById('previewContainer').innerHTML = templateForPreview;
 
+            // 미리보기 복사 버튼 표시 (PPT용)
+            document.getElementById('btnCopyPreview').style.display = 'inline-block';
+
             // Full Code Output
             const fullOutputCode = `<html lang="ko">
 <head>
@@ -1815,6 +1823,88 @@ ${contentBody}
                 document.execCommand("copy");
                 alert("코드가 복사되었습니다. (Fallback)");
             });
+        }
+
+        async function copyPreview() {
+            const previewEl = document.getElementById('previewContainer');
+            if (!previewEl || previewEl.querySelector('[style*="text-align: center"]')) {
+                alert('미리보기 내용이 없습니다. 먼저 HTML 변환을 수행해 주세요.');
+                return;
+            }
+
+            const btn = document.getElementById('btnCopyPreview');
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ 복사 중...';
+            btn.disabled = true;
+
+            // PPT/Word에서 서식이 유지되도록 핵심 스타일 포함
+            const inlineStyles = `<style>
+                body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #444; }
+                p { margin: 0 0 10px 0; padding: 0; }
+                strong { font-weight: 700; }
+                ul, ol { margin: 0 0 15px; padding-left: 15px; }
+                li { margin-top: 5px; line-height: 1.5; }
+                table { border-collapse: collapse; margin: 10px 0; }
+                td, th { padding: 7px 10px; border: 1px solid #ccc; text-align: center; font-size: 14px; vertical-align: middle; }
+                th { font-weight: 700; background: #ddd; }
+                .tit { font-weight: 700; font-size: 20px; color: #444; margin: 20px 0 8px; border-bottom: 2px solid #ec455a; padding-bottom: 5px; }
+                .sub-tit { font-size: 16px; font-weight: 600; margin: 15px 0 6px; padding-left: 20px; }
+                .sub-tit .num { display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 50%; font-size: 11px; color: #fff; background: #999; margin-left: -20px; margin-right: 4px; }
+                .info-subject { font-size: 16px; font-weight: 600; }
+                .lg-red, .lg-red * { color: #ec455a !important; }
+                .c-gray { color: #999 !important; }
+                .tbl-scroll { margin-bottom: 15px; }
+            </style>`;
+
+            // 미리보기 HTML에 스타일을 포함한 완전한 HTML 문서 생성
+            const htmlContent = `<!DOCTYPE html><html><head><meta charset="utf-8">${inlineStyles}</head><body>${previewEl.innerHTML}</body></html>`;
+            const plainText = previewEl.innerText || previewEl.textContent || '';
+
+            try {
+                // 방법 1: ClipboardItem API (Chrome 86+, Edge 86+)
+                if (navigator.clipboard && window.ClipboardItem) {
+                    const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
+                    const textBlob = new Blob([plainText], { type: 'text/plain' });
+                    await navigator.clipboard.write([
+                        new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })
+                    ]);
+                    btn.textContent = '✅ 복사 완료! PPT에서 Ctrl+V';
+                    setTimeout(() => { btn.textContent = originalText; btn.disabled = false; }, 2500);
+                    return;
+                }
+            } catch (e) {
+                console.warn('ClipboardItem API 실패, 폴백 시도:', e);
+            }
+
+            // 방법 2: execCommand 폴백 (구형 브라우저 / file:// 환경)
+            try {
+                const tempDiv = document.createElement('div');
+                tempDiv.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none;';
+                tempDiv.innerHTML = previewEl.innerHTML;
+                document.body.appendChild(tempDiv);
+
+                const selection = window.getSelection();
+                const range = document.createRange();
+                range.selectNodeContents(tempDiv);
+                selection.removeAllRanges();
+                selection.addRange(range);
+
+                const success = document.execCommand('copy');
+                selection.removeAllRanges();
+                document.body.removeChild(tempDiv);
+
+                if (success) {
+                    btn.textContent = '✅ 복사 완료! PPT에서 Ctrl+V';
+                    setTimeout(() => { btn.textContent = originalText; btn.disabled = false; }, 2500);
+                } else {
+                    throw new Error('execCommand 복사 실패');
+                }
+            } catch (err) {
+                console.error('복사 오류:', err);
+                alert('자동 복사에 실패했습니다.\n\n대안: 미리보기 영역을 마우스로 전체 선택(Ctrl+A) 후 복사(Ctrl+C) 해보세요.');
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
         }
     </script>
 
