@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -7,33 +7,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GSCS 업무 표준 변환기</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --lg-red: #ec455a;
             --lg-dark: #333;
             --bg-light: #f8f9fa;
             --border-color: #ddd;
+            --primary-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
         body {
             font-family: 'Noto Sans KR', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #eee;
+            background-color: #f0f2f5;
             color: #333;
         }
 
         .container {
             display: flex;
             width: 100%;
-            margin: 0;
             height: 100vh;
             background: #fff;
             overflow: hidden;
         }
 
-        /* Tabs for Mobile */
         .mobile-tabs {
             display: none;
             width: 100%;
@@ -59,35 +59,35 @@
             border-bottom: 3px solid var(--lg-red);
         }
 
-        /* Left Panel - Editor */
         .editor-panel {
             flex: 1;
             padding: 30px;
             overflow-y: auto;
             border-right: 1px solid var(--border-color);
+            background: #fff;
         }
 
-        /* Right Panel - Preview */
         .preview-panel {
             flex: 1;
             padding: 30px;
-            background-color: var(--bg-light);
+            background-color: #f8f9fa;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
         }
 
         .panel-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 25px;
             color: var(--lg-dark);
             display: flex;
             align-items: center;
+            letter-spacing: -0.5px;
         }
 
         .panel-title i {
-            margin-right: 10px;
+            margin-right: 12px;
             color: var(--lg-red);
         }
 
@@ -100,256 +100,443 @@
             margin-bottom: 8px;
             font-weight: 600;
             font-size: 15px;
+            color: #444;
         }
 
         input[type="text"],
         textarea,
         select {
             width: 100%;
-            padding: 10px;
+            padding: 10px 12px;
             border: 1px solid var(--border-color);
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 14px;
             box-sizing: border-box;
+            transition: border-color 0.2s;
         }
 
-        /* Custom Editor */
+        input[type="text"]:focus,
+        select:focus {
+            border-color: var(--lg-red);
+            outline: none;
+        }
+
         .editor-container {
             border: 1px solid var(--border-color);
-            border-radius: 4px;
             background: #fff;
+            overflow: visible;
+            margin-top: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #fff;
+            border-bottom: 2px solid var(--lg-red);
+            padding: 15px 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
 
         .editor-toolbar {
-            padding: 8px;
+            padding: 10px 15px;
             border-bottom: 1px solid var(--border-color);
             background: #fdfdfd;
             display: flex;
-            gap: 5px;
+            gap: 8px;
             flex-wrap: wrap;
+            align-items: center;
+            position: sticky;
+            top: 60px;
+            /* 제목 높이 고려 */
+            z-index: 999;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
         }
 
         .editor-toolbar button {
             background: #fff;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             padding: 5px 10px;
-            border-radius: 3px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 13px;
+            color: #555;
             transition: all 0.2s;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .editor-toolbar button:hover {
-            background: #eee;
+            background: #f0f0f0;
+            border-color: #ccc;
+        }
+
+        .editor-toolbar select {
+            padding: 0 8px;
+            font-size: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            height: 30px;
+            background: #fff;
+            width: auto;
+        }
+
+        .font-family-select {
+            width: 110px !important;
+        }
+
+        .font-size-select {
+            width: 60px !important;
+        }
+
+        .btn-font-step {
+            min-width: 30px;
+            font-weight: bold;
+        }
+
+        .btn-font-step span {
+            font-size: 10px;
+            margin-left: 2px;
+            color: #0078d4;
+        }
+
+        /* Color Tool Split Button */
+        .color-tool-split {
+            display: inline-flex;
+            align-items: stretch;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            height: 30px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .color-btn-main {
+            padding: 0 8px;
+            background: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid #eee;
+        }
+
+        .color-btn-main:hover {
+            background-color: #f5f5f5;
+        }
+
+        .color-btn-arrow {
+            padding: 0 6px;
+            background: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #666;
+        }
+
+        .color-btn-arrow:hover {
+            background-color: #f5f5f5;
+        }
+
+        .color-icon-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1;
+        }
+
+        .color-icon-wrapper b {
+            font-size: 14px;
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+        }
+
+        .color-icon-wrapper i {
+            font-size: 13px;
+        }
+
+        .color-bar {
+            width: 16px;
+            height: 3px;
+            margin-top: 1px;
+            border: 0.5px solid rgba(0, 0, 0, 0.1);
         }
 
         .editor-content-view {
-            min-height: 150px;
-            padding: 15px;
+            min-height: 120px;
+            padding: 18px;
             outline: none;
             font-size: 14px;
             line-height: 1.6;
+            word-break: break-all;
+            background-color: #fff;
+            position: relative;
+            /* For absolute child placement */
         }
 
-        .editor-content-view:empty:before {
-            content: attr(placeholder);
-            color: #999;
+        .editor-content-view table {
+            table-layout: fixed;
+            width: 100%;
+            border-collapse: collapse;
+            box-sizing: border-box;
+        }
+
+        .editor-content-view td,
+        .editor-content-view th {
+            word-break: break-all;
+            overflow-wrap: break-word;
         }
 
         .btn-convert {
-            background-color: var(--lg-red);
+            background: linear-gradient(135deg, var(--lg-red), #d6334a);
             color: #fff;
             border: none;
-            padding: 15px 30px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 4px;
+            padding: 14px;
+            font-size: 17px;
+            font-weight: 700;
+            border-radius: 8px;
             cursor: pointer;
+            margin-top: 25px;
             width: 100%;
-            margin-top: 20px;
-            transition: background 0.3s;
+            box-shadow: 0 4px 15px rgba(236, 69, 90, 0.3);
+            transition: all 0.3s;
         }
 
         .btn-convert:hover {
-            background-color: #d43448;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(236, 69, 90, 0.4);
         }
 
         .btn-add-section {
-            background-color: #fff;
+            background: #fff;
             color: var(--lg-red);
-            border: 1px dashed var(--lg-red);
-            padding: 10px;
+            border: 2px dashed #ec455a44;
+            padding: 12px;
             width: 100%;
-            margin-bottom: 20px;
+            margin: 20px 0;
             cursor: pointer;
-            font-weight: bold;
-            border-radius: 4px;
+            font-weight: 700;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-add-section:hover {
+            background: #fff5f6;
+            border-color: var(--lg-red);
         }
 
         .dynamic-section {
             position: relative;
-            padding: 20px;
+            padding: 25px;
             border: 1px solid #eee;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-bottom: 25px;
-            background: #fafafa;
+            background: #fdfdfd;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         }
 
         .btn-remove-section {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            color: #999;
+            top: 15px;
+            right: 15px;
+            color: #ccc;
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 20px;
+            transition: color 0.2s;
         }
 
         .btn-remove-section:hover {
             color: var(--lg-red);
         }
 
-        /* Preview Area */
         .preview-frame {
             background: #fff;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 12px;
             min-height: 500px;
             flex: 1;
             padding: 0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            overflow-x: hidden;
+            box-shadow: var(--primary-shadow);
+            overflow: hidden;
         }
 
         .code-area {
-            margin-top: 20px;
+            margin-top: 25px;
+            position: relative;
         }
 
         #codeOutput {
-            height: 150px;
-            min-height: 100px;
-            font-family: monospace;
-            background: #2d2d2d;
-            color: #ccc;
-            padding: 15px;
+            width: 100%;
+            height: 180px;
+            font-family: 'Consolas', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 18px;
+            border-radius: 8px;
+            border: none;
             resize: none;
-            /* Disable default resize */
+            box-sizing: border-box;
+            font-size: 13px;
+            line-height: 1.5;
         }
 
-        /* Top Resize Handle Style */
         .resize-handle-top {
             display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            background: #f0f0f0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 11px;
-            color: #555;
+            justify-content: center;
+            height: 12px;
+            background: #eee;
             cursor: ns-resize;
-            user-select: none;
-            transition: background 0.2s;
+            border-radius: 4px 4px 0 0;
+            margin-bottom: -4px;
+            position: relative;
+            z-index: 10;
         }
 
-        .resize-handle-top:hover {
-            background: #e5e5e5;
-            border-color: #ccc;
+        .resize-handle-top::after {
+            content: '';
+            width: 30px;
+            height: 3px;
+            background: #ccc;
+            border-top: 1px solid #bbb;
+            border-bottom: 1px solid #bbb;
         }
 
         .btn-primary {
             background: var(--lg-red);
             color: #fff;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            padding: 10px 22px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         .btn-secondary {
-            background: #666;
+            background: #6c757d;
             color: #fff;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            padding: 10px 22px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         /* Modal */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
+            z-index: 2000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
         }
 
         .modal-content {
-            background-color: #fff;
-            margin: 5% auto;
-            padding: 30px;
-            width: 80%;
-            max-width: 800px;
-            border-radius: 8px;
-            position: relative;
-        }
-
-        .close-modal {
-            position: absolute;
-            right: 20px;
-            top: 15px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #aaa;
+            background: #fff;
+            margin: 5vh auto;
+            padding: 35px;
+            width: 90%;
+            max-width: 850px;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
         }
 
         .visual-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .visual-table th,
         .visual-table td {
-            border: 1px solid #ccc;
-            padding: 5px;
+            border: 1px solid #eee;
+            padding: 8px;
         }
 
         .visual-table input {
             width: 100%;
             border: none;
             outline: none;
-            padding: 5px;
-            box-sizing: border-box;
-        }
-
-        /* Textarea for info table */
-        #infoTable textarea {
-            width: 100%;
-            border: none;
-            outline: none;
-            padding: 8px;
-            font-family: inherit;
+            padding: 6px;
             font-size: 14px;
-            box-sizing: border-box;
-            resize: vertical;
-            min-height: 40px;
-            display: block;
-            background: transparent;
         }
 
-        #infoTable td {
-            padding: 0 !important;
+        .color-picker-popup {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 15px;
+            z-index: 10000;
+            display: none;
+            width: 260px;
+            border-radius: 8px;
         }
 
-        @media screen and (max-width: 1024px) {
+        .cp-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 6px;
+            margin: 8px 0;
+        }
+
+        .cp-cell {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #eee;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: transform 0.15s;
+        }
+
+        .cp-cell:hover {
+            transform: scale(1.3);
+            z-index: 2;
+            border-color: #333;
+        }
+
+        .cp-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 4px;
+        }
+
+        .cp-more-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #555;
+            border-radius: 4px;
+        }
+
+        .cp-more-btn:hover {
+            background: #f5f5f5;
+        }
+
+        @media (max-width: 1024px) {
             .container {
                 flex-direction: column;
                 height: auto;
@@ -357,9 +544,9 @@
 
             .editor-panel,
             .preview-panel {
-                flex: none;
                 width: 100%;
-                box-sizing: border-box;
+                height: auto;
+                border-right: none;
             }
 
             .mobile-tabs {
@@ -369,209 +556,6 @@
             .preview-panel {
                 display: none;
             }
-        }
-
-        /* Result HTML CSS */
-        .content-service-view {
-            font-family: 'Noto Sans KR', sans-serif;
-            line-height: 1.6;
-            color: #333;
-        }
-
-        .sub-tit {
-            position: relative;
-            padding-left: 25px;
-            margin: 30px 0 10px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .sub-tit .num {
-            position: absolute;
-            left: 0;
-            top: 2px;
-            width: 20px;
-            height: 20px;
-            background: #999;
-            color: #fff;
-            border-radius: 50%;
-            text-align: center;
-            font-size: 12px;
-            line-height: 20px;
-        }
-
-        .sub-tit.no-content {
-            margin-top: 15px;
-        }
-
-        .tbl-scroll {
-            overflow-x: auto;
-            margin: 15px 0;
-        }
-
-        .tbl-scroll table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .tbl-scroll th,
-        .tbl-scroll td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .tbl-scroll th {
-            background: #eee;
-            font-weight: bold;
-        }
-
-        .img-only {
-            margin: 15px 0;
-            text-align: left;
-        }
-
-        .img-only img {
-            max-width: 100%;
-            height: auto;
-        }
-
-        .table-width-controls {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 6px 10px;
-            background: #f0f4ff;
-            border: 1px solid #b8c9e8;
-            border-bottom: none;
-            border-radius: 6px 6px 0 0;
-            flex-wrap: wrap;
-            user-select: none;
-        }
-
-        .table-width-controls .tw-label {
-            font-size: 11px;
-            color: #4a6fa5;
-            font-weight: 600;
-            margin-right: 4px;
-            white-space: nowrap;
-        }
-
-        .table-width-controls .tw-col-group {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            background: #fff;
-            border: 1px solid #ccd5e4;
-            border-radius: 4px;
-            padding: 2px 5px;
-        }
-
-        .table-width-controls .tw-col-label {
-            font-size: 10px;
-            color: #888;
-            min-width: 14px;
-            text-align: center;
-        }
-
-        .table-width-controls input[type="number"] {
-            width: 52px;
-            padding: 2px 4px;
-            font-size: 12px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            text-align: center;
-            outline: none;
-        }
-
-        .table-width-controls input[type="number"]:focus {
-            border-color: #4a6fa5;
-            box-shadow: 0 0 3px rgba(74, 111, 165, 0.3);
-        }
-
-        .table-width-controls .tw-unit {
-            font-size: 10px;
-            color: #999;
-        }
-
-        /* Summary Section Styles */
-        .info-container {
-            margin-bottom: 10px;
-        }
-
-        .info-row {
-            margin-bottom: 15px;
-        }
-
-        .info-row-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-
-        .info-bullet {
-            font-size: 12px;
-            color: #333;
-        }
-
-        .info-editable-title {
-            border: 1px solid transparent;
-            background: transparent;
-            font-weight: bold;
-            font-size: 15px;
-            width: 150px;
-            padding: 2px 5px;
-            color: #333;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-
-        .info-editable-title:hover {
-            background: #fff;
-            border-color: #ddd;
-        }
-
-        .info-editable-title:focus {
-            background: #fff;
-            border-color: var(--lg-red);
-            outline: none;
-        }
-
-        .faint-text {
-            font-size: 12px;
-            color: #999;
-            font-weight: normal;
-        }
-
-        .info-content-area {
-            background-color: #f2f2f2 !important;
-            border: 1px solid #ddd !important;
-            border-radius: 4px;
-            padding: 10px 12px !important;
-            width: 100%;
-            min-height: 50px;
-            font-size: 14px;
-            box-sizing: border-box;
-            resize: vertical;
-            display: block;
-            line-height: 1.5;
-        }
-
-        .info-content-area:focus {
-            background-color: #fff !important;
-            border-color: var(--lg-red) !important;
-            outline: none;
-        }
-
-        /* Column Drag Resize */
-        .col-resizing {
-            cursor: col-resize !important;
-            user-select: none !important;
-        }
-
-        .col-resizing * {
-            cursor: col-resize !important;
         }
     </style>
 </head>
@@ -583,578 +567,486 @@
     </div>
 
     <div class="container">
-        <!-- Editor Panel -->
         <div class="editor-panel">
-            <div class="panel-title"><i class="fas fa-edit"></i> 업무 표준 콘텐츠 작성</div>
-            <p style="font-size: 13px; color: #666; margin: -15px 0 20px 28px;">제목, 제품군, 제품, 모델등은 상단 부분에 정확히 입력하세요.</p>
+            <div class="sticky-header" style="margin: -25px -30px 25px -30px; border-radius: 10px 10px 0 0;">
+                <div class="panel-title" style="margin-bottom:0;"><i class="fas fa-file-alt"></i> 업무 표준 변환기</div>
+            </div>
 
-            <!-- Modification Information (Summary) -->
             <div
-                style="margin-bottom: 20px; border-bottom: 2px solid var(--lg-red); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end;">
-                <h3 style="color: var(--lg-red); margin: 0; font-size: 18px;">수정 정보</h3>
-                <span class="faint-text">제목 등은 직접 수정 가능합니다.</span>
+                style="margin-bottom: 25px; padding: 20px; background: #fff5f6; border-radius: 10px; border-left: 5px solid var(--lg-red);">
+                <h3 style="margin: 0 0 5px 0; color: var(--lg-red); font-size: 18px;">공통 정보</h3>
+                <p style="margin: 0; font-size: 13px; color: #666;">배경, 제품명, 증상 요약 등을 작성하세요.</p>
             </div>
 
-            <div class="info-container">
-                <div class="info-row">
-                    <div class="info-row-header">
-                        <span class="info-bullet">●</span>
-                        <input type="text" id="info_title_bg" class="info-editable-title" value="배경">
-                    </div>
-                    <textarea id="info_bg" class="info-content-area" placeholder="품질 문제 해결 등"></textarea>
-                </div>
-
-                <div class="info-row">
-                    <div class="info-row-header">
-                        <span class="info-bullet">●</span>
-                        <input type="text" id="info_title_product" class="info-editable-title" value="제품">
-                    </div>
-                    <textarea id="info_product" class="info-content-area" placeholder="제품군 또는 상세 모델"></textarea>
-                </div>
-
-                <div class="info-row">
-                    <div class="info-row-header">
-                        <span class="info-bullet">●</span>
-                        <input type="text" id="info_title_symptom" class="info-editable-title" value="증상">
-                    </div>
-                    <textarea id="info_symptom" class="info-content-area" placeholder="발생 증상 요합"></textarea>
-                </div>
-
-                <div class="info-row">
-                    <div class="info-row-header">
-                        <span class="info-bullet">●</span>
-                        <input type="text" id="info_title_parts" class="info-editable-title" value="부품정보">
-                    </div>
-                    <textarea id="info_partInfo" class="info-content-area" placeholder="관련 부품 정보"></textarea>
-                </div>
+            <!-- Sections: Background, Product, Symptom Summary, Part Info -->
+            <div class="form-group"><label>배경</label>
+                <div id="toolbar_bg" class="toolbar-placeholder"></div>
+                <div id="info_bg" class="editor-content-view paste-area" contenteditable="true"
+                    placeholder="배경 내용을 입력하세요..."></div>
+            </div>
+            <div class="form-group"><label>제품</label>
+                <div id="toolbar_product" class="toolbar-placeholder"></div>
+                <div id="info_product" class="editor-content-view paste-area" contenteditable="true"
+                    placeholder="제품 정보를 입력하세요..."></div>
+            </div>
+            <div class="form-group"><label>증상</label>
+                <div id="toolbar_symptom" class="toolbar-placeholder"></div>
+                <div id="info_symptom" class="editor-content-view paste-area" contenteditable="true"
+                    placeholder="증상을 입력하세요..."></div>
+            </div>
+            <div class="form-group"><label>부품 정보</label>
+                <div id="toolbar_partInfo" class="toolbar-placeholder"></div>
+                <div id="info_partInfo" class="editor-content-view paste-area" contenteditable="true"
+                    placeholder="부품 정보를 입력하세요..."></div>
             </div>
 
-            <!-- Content Area -->
-            <div
-                style="margin-top: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--lg-red); padding-bottom: 10px;">
-                <h3 style="color: var(--lg-red); margin: 0; font-size: 18px;">내용 입력</h3>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 40px 0;">
+
+            <!-- Main Sections: Symptom, Cause, Repair -->
+            <div class="form-group">
+                <input type="text" id="inSymptomTitle" value="현상 및 증상"
+                    style="font-weight:700; background:#f9fbff; margin-bottom:8px;">
+                <div id="toolbar_1" class="toolbar-placeholder"></div>
+                <div id="inSymptom" class="editor-content-view paste-area" contenteditable="true"
+                    placeholder="현상을 입력하세요..."></div>
+            </div>
+            <div class="form-group">
+                <input type="text" id="inCauseTitle" value="원인"
+                    style="font-weight:700; background:#f9fbff; margin-bottom:8px;">
+                <div id="toolbar_2" class="toolbar-placeholder"></div>
+                <div id="inCause" class="editor-content-view paste-area" contenteditable="true"
+                    placeholder="원인을 입력하세요..."></div>
+            </div>
+            <div class="form-group">
+                <input type="text" id="inRepairTitle" value="조치 방법"
+                    style="font-weight:700; background:#f9fbff; margin-bottom:8px;">
+                <div id="toolbar_3" class="toolbar-placeholder"></div>
+                <div id="inRepairMethod" class="editor-content-view paste-area" contenteditable="true"
+                    placeholder="조치 방법을 입력하세요..."></div>
             </div>
 
-            <!-- Fixed Sections -->
-            <div id="fixedSections">
-                <!-- Content (Previously Symptom) -->
-                <div class="form-group">
-                    <label>1. 내용 (제목 수정 가능)</label>
-                    <input type="text" id="inSymptomTitle" value="내용" style="margin-bottom:5px;">
-                    <div class="editor-container">
-                        <div class="editor-toolbar">
-                            <div class="editor-toolbar">
-                                <button onclick="insertFormat('bold')" title="굵게"><i class="fas fa-bold"></i></button>
-                                <button onclick="insertFormat('italic')" title="기울임"><i
-                                        class="fas fa-italic"></i></button>
-                                <button onclick="insertFormat('insertUnorderedList')" title="글머리 기호"><i
-                                        class="fas fa-list-ul"></i></button>
-                                <button onclick="insertFormat('insertOrderedList')" title="숫자 목록"><i
-                                        class="fas fa-list-ol"></i></button>
-                                <button onclick="openTableModal(event)" title="표 삽입"><i
-                                        class="fas fa-table"></i></button>
-                                <button onclick="clearEditor(this)" style="margin-left:auto;"><i
-                                        class="fas fa-trash-alt"></i></button>
-                            </div>
-                        </div>
-                        <div id="inSymptom" class="editor-content-view paste-area" contenteditable="true"
-                            placeholder="상세 내용을 입력하세요..."></div>
-                    </div>
-                </div>
-                <!-- Standard (Previously Cause) -->
-                <div class="form-group">
-                    <label>2. 기준 (제목 수정 가능)</label>
-                    <input type="text" id="inCauseTitle" value="기준" style="margin-bottom:5px;">
-                    <div class="editor-container">
-                        <div class="editor-toolbar">
-                            <div class="editor-toolbar">
-                                <button onclick="insertFormat('bold')" title="굵게"><i class="fas fa-bold"></i></button>
-                                <button onclick="insertFormat('italic')" title="기울임"><i
-                                        class="fas fa-italic"></i></button>
-                                <button onclick="insertFormat('insertUnorderedList')" title="글머리 기호"><i
-                                        class="fas fa-list-ul"></i></button>
-                                <button onclick="insertFormat('insertOrderedList')" title="숫자 목록"><i
-                                        class="fas fa-list-ol"></i></button>
-                                <button onclick="openTableModal(event)" title="표 삽입"><i
-                                        class="fas fa-table"></i></button>
-                                <button onclick="clearEditor(this)" style="margin-left:auto;"><i
-                                        class="fas fa-trash-alt"></i></button>
-                            </div>
-                        </div>
-                        <div id="inCause" class="editor-content-view paste-area" contenteditable="true"
-                            placeholder="기준 내용을 입력하세요..."></div>
-                    </div>
-                </div>
-                <!-- Details (Previously Repair Method) -->
-                <div class="form-group">
-                    <label>3. 상세 (제목 수정 가능)</label>
-                    <input type="text" id="inRepairTitle" value="상세" style="margin-bottom:5px;">
-                    <div class="editor-container">
-                        <div class="editor-toolbar">
-                            <button onclick="insertFormat('bold')" title="굵게"><i class="fas fa-bold"></i></button>
-                            <button onclick="insertFormat('italic')" title="기울임"><i class="fas fa-italic"></i></button>
-                            <button onclick="insertFormat('insertUnorderedList')" title="글머리 기호"><i
-                                    class="fas fa-list-ul"></i></button>
-                            <button onclick="insertFormat('insertOrderedList')" title="숫자 목록"><i
-                                    class="fas fa-list-ol"></i></button>
-                            <button onclick="openTableModal(event)" title="표 삽입"><i class="fas fa-table"></i></button>
-                            <button onclick="clearEditor(this)" style="margin-left:auto;"><i
-                                    class="fas fa-trash-alt"></i></button>
-                        </div>
-                        <div id="inRepairMethod" class="editor-content-view paste-area" contenteditable="true"
-                            placeholder="상세 서비스 방법을 입력하세요..."></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dynamic Sections -->
             <div id="dynamicSections"></div>
-            <button class="btn-add-section" onclick="addDynamicSection()">+ 섹션 추가</button>
-            <button class="btn-convert" onclick="generateHTML()">HTML 변환 생성</button>
+            <button class="btn-add-section" onclick="addDynamicSection()"><i class="fas fa-plus"></i> 추가 섹션 삽입</button>
+            <button class="btn-convert" onclick="generateHTML()"><i class="fas fa-magic"></i> HTML 변환하기</button>
         </div>
 
-        <!-- Preview Panel -->
         <div class="preview-panel">
-            <div class="panel-title"><i class="fas fa-mobile-alt"></i> 기기 미리보기</div>
-            <div class="preview-frame" id="previewContainer">
-                <div style="padding: 40px; text-align: center; color: #999;">
-                    <i class="fas fa-magic" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
-                    내용을 입력하고 <b>HTML 변환</b> 버튼을 누르세요.
+            <div class="panel-title"><i class="fas fa-eye"></i> 결과 데이터 미리보기</div>
+            <div id="previewContainer" class="preview-frame">
+                <div style="padding: 100px; text-align: center; color: #999;">
+                    <i class="fas fa-code"
+                        style="font-size: 48px; display: block; margin-bottom: 20px; opacity: 0.3;"></i>
+                    변환 버튼을 누르면 이 곳에 결과가 표시됩니다.
                 </div>
             </div>
 
             <div class="code-area">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <h3 style="font-size: 16px; margin: 0;">HTML 소스 코드</h3>
-                        <div id="codeResizeHandle" class="resize-handle-top" title="위로 올리면 커지고 내리면 작아집니다">
-                            <i class="fas fa-arrows-alt-v"></i> <b>높이 조절 (Drag)</b>
-                        </div>
-                    </div>
-                    <button class="btn-primary" onclick="copyCode()"
-                        style="padding: 5px 15px; font-size: 13px;">복사</button>
+                <div id="codeResizeHandle" class="resize-handle-top" title="드래그하여 크기 조절"></div>
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: #333; padding: 10px 15px; border-radius: 8px 8px 0 0;">
+                    <span style="color: #fff; font-size: 13px; font-weight: 700;"><i class="fas fa-terminal"
+                            style="margin-right:8px; color:#4ec9b0;"></i> 생성된 HTML 코드</span>
+                    <button class="btn-primary" onclick="copyCode()" style="padding: 5px 15px; font-size: 12px;"><i
+                            class="fas fa-copy" style="margin-right: 5px;"></i> 코드 복사</button>
                 </div>
-                <textarea id="codeOutput" readonly placeholder="변환된 코드가 이곳에 표시됩니다..."></textarea>
+                <textarea id="codeOutput" readonly placeholder="이 곳에 결과 코드가 생성됩니다..."></textarea>
             </div>
         </div>
     </div>
 
-    <!-- Table Editor Modal -->
+    <!-- Modals -->
     <div id="tableModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeTableModal()">&times;</span>
-            <h2 style="margin-top: 0; color: var(--lg-red);">표 삽입</h2>
-            <div style="margin-bottom: 15px; display:flex; gap:15px; align-items:center;">
-                <label>행: <input type="number" id="tblRows" value="3" min="1" style="width: 50px;"></label>
-                <label>열: <input type="number" id="tblCols" value="2" min="1" style="width: 50px;"></label>
-                <button class="btn-secondary" onclick="generateVisualTable()">초기화</button>
+            <h2 style="margin-top:0;">표 삽입</h2>
+            <div
+                style="display:flex; gap:20px; align-items:center; margin-bottom:20px; background:#f8f9fa; padding:15px; border-radius:8px;">
+                <label>행 <input type="number" id="tblRows" value="3" min="1" style="width: 60px;"></label>
+                <label>열 <input type="number" id="tblCols" value="2" min="1" style="width: 60px;"></label>
+                <button class="btn-secondary" onclick="generateVisualTable()">표 구성 초기화</button>
             </div>
-            <div id="visualTableContainer"></div>
-            <div style="text-align: right; margin-top: 20px;">
+            <div id="visualTableContainer"
+                style="max-height: 400px; overflow: auto; border: 1px solid #eee; border-radius: 8px;"></div>
+            <div style="text-align: right; margin-top: 25px; display:flex; gap:10px; justify-content: flex-end;">
                 <button class="btn-secondary" onclick="closeTableModal()">취소</button>
-                <button class="btn-primary" onclick="insertTableFromModal()">삽입</button>
+                <button class="btn-primary" onclick="insertTableFromModal()">에디터에 삽입</button>
             </div>
         </div>
     </div>
 
-    <script>
-        // --- Markdown & Renderer ---
-        const renderer = new marked.Renderer();
-        renderer.table = (header, body) => `<div class="tbl-scroll"><table class="xfe_just_info"><thead>${header}</thead><tbody>${body}</tbody></table></div>`;
-        renderer.image = (href, title, text) => `<div class="img-only"><img src="${href}" alt="${text || ''}" class="xfe_just_info"/></div>`;
-        marked.setOptions({ breaks: true, gfm: true, renderer });
+    <div id="customColorPicker" class="color-picker-popup">
+        <div class="cp-section-title">테마 색상</div>
+        <div id="themeColorsGrid" class="cp-grid"></div>
+        <div class="cp-section-title">표준 색상</div>
+        <div id="standardColorsRow" class="cp-grid"></div>
+        <div class="cp-section-title">기타</div>
+        <div class="cp-more-btn" onclick="triggerNativeColorInput()"><i class="fas fa-palette"></i> 다른 색 선택...</div>
+        <input type="color" id="nativeColorInput" style="display:none;" onchange="selectQuickColor(this.value)">
+    </div>
 
-        // --- Basic Editor Tools ---
-        function insertFormat(command, value = null) { document.execCommand(command, false, value); }
-        function insertHTML(html) { document.execCommand('insertHTML', false, html); }
-        function clearEditor(btn) {
-            const editor = btn.closest('.editor-container').querySelector('.editor-content-view');
-            if (editor) { editor.innerHTML = ''; editor.focus(); }
+    <script>
+        // --- Shared Toolbar HTML ---
+        const TOOLBAR_HTML = `
+            <div class="editor-toolbar">
+                <select onchange="changeFontFamily(this)" class="font-family-select">
+                    <option value="맑은 고딕" selected>맑은 고딕</option>
+                    <option value="돋움">돋움</option>
+                    <option value="굴림">굴림</option>
+                    <option value="바탕">바탕</option>
+                    <option value="Arial">Arial</option>
+                </select>
+                <select onchange="changeFontSize(this)" class="font-size-select">
+                    <option value="1">8</option><option value="2">10</option><option value="3" selected>11</option>
+                    <option value="4">14</option><option value="5">18</option><option value="6">24</option><option value="7">36</option>
+                </select>
+                <button onclick="stepFontSize(1)" class="btn-font-step">가<span>+</span></button>
+                <button onclick="stepFontSize(-1)" class="btn-font-step">가<span>-</span></button>
+                <div class="color-tool-split">
+                    <button class="color-btn-main" onclick="applyLastColor('foreColor', event)"><div class="color-icon-wrapper"><b>가</b><div class="color-bar" style="background-color: red;"></div></div></button>
+                    <button class="color-btn-arrow" onclick="openColorTool('foreColor', event)"><i class="fas fa-caret-down"></i></button>
+                </div>
+                <button onclick="insertFormat('bold')"><i class="fas fa-bold"></i></button>
+                <button onclick="insertFormat('italic')"><i class="fas fa-italic"></i></button>
+                <button onclick="insertFormat('insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
+                <button onclick="insertFormat('insertOrderedList')"><i class="fas fa-list-ol"></i></button>
+                <button onclick="openTableModal(event)"><i class="fas fa-table"></i></button>
+                <button onclick="clearEditor(this)" style="margin-left:auto;"><i class="fas fa-trash-alt"></i></button>
+            </div>`;
+
+        // --- Editor Core ---
+        let lastFocusedEditor = null, selectionRange = null, activeToolbar = null, activeColorType = 'foreColor';
+        let isRowResizing = false, isColResizing = false, startX, startY, startW, startH, startTableW, targetCell, targetRow;
+        let isPendingColResize = false, isPendingRowResize = false;
+        let isR = false, sY, sH; // For Code Area Resize
+
+        function saveSelectionState() {
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0) selectionRange = sel.getRangeAt(0);
+        }
+        function restoreSelectionState() {
+            if (selectionRange && lastFocusedEditor) {
+                lastFocusedEditor.focus();
+                const sel = window.getSelection();
+                sel.removeAllRanges(); sel.addRange(selectionRange);
+            } else if (lastFocusedEditor) lastFocusedEditor.focus();
         }
 
-        // --- Table Modal ---
-        let lastFocusedEditor = null;
-        function openTableModal(e) {
-            const container = e.target.closest('.editor-container');
+        function insertFormat(cmd, val = null) { restoreSelectionState(); document.execCommand(cmd, false, val); }
+        function insertHTML(html) { restoreSelectionState(); document.execCommand('insertHTML', false, html); }
+        function changeFontFamily(s) { restoreSelectionState(); document.execCommand('fontName', false, s.value); }
+        function changeFontSize(s) { restoreSelectionState(); document.execCommand('fontSize', false, s.value); }
+        function stepFontSize(d) {
+            restoreSelectionState();
+            let cur = parseInt(document.queryCommandValue('fontSize')) || 3;
+            document.execCommand('fontSize', false, Math.max(1, Math.min(7, cur + d)));
+        }
+        function clearEditor(btn) {
+            const ed = btn.closest('.editor-container, .form-group').querySelector('.editor-content-view');
+            if (ed && confirm('정말 내용을 지우시겠습니까?')) ed.innerHTML = '';
+        }
+
+
+        // --- Colors ---
+        function applyLastColor(type, e) {
+            e.stopPropagation(); activeColorType = type;
+            const container = e.currentTarget.closest('.editor-container, .form-group');
             if (container) lastFocusedEditor = container.querySelector('.editor-content-view');
-            document.getElementById('tableModal').style.display = 'block';
-            generateVisualTable();
+            const color = e.currentTarget.querySelector('.color-bar').style.backgroundColor;
+            if (type === 'foreColor') changeColor(color); else changeBgColor(color);
+        }
+        function openColorTool(type, e) {
+            e.stopPropagation(); activeColorType = type;
+            activeToolbar = e.currentTarget.closest('.color-tool-split');
+            const container = e.currentTarget.closest('.editor-container, .form-group');
+            if (container) { lastFocusedEditor = container.querySelector('.editor-content-view'); saveSelectionState(); }
+            const p = document.getElementById('customColorPicker'), r = e.currentTarget.getBoundingClientRect();
+            p.style.display = 'block'; p.style.top = (window.scrollY + r.bottom + 5) + 'px';
+            p.style.left = Math.min(r.left, window.innerWidth - 275) + 'px';
+        }
+        function changeColor(c) {
+            restoreSelectionState(); document.execCommand('foreColor', false, c);
+            if (activeToolbar) activeToolbar.querySelector('.color-bar').style.backgroundColor = c;
+        }
+        function changeBgColor(c) {
+            restoreSelectionState(); document.execCommand('hiliteColor', false, c);
+            if (activeToolbar) activeToolbar.querySelector('.color-bar').style.backgroundColor = c;
+        }
+        function selectQuickColor(c) {
+            if (activeColorType === 'foreColor') changeColor(c); else changeBgColor(c);
+            document.getElementById('customColorPicker').style.display = 'none';
+        }
+        function triggerNativeColorInput() { document.getElementById('nativeColorInput').click(); }
+
+        function initColorPicker() {
+            const theme = ['#ffffff', '#000000', '#eeece1', '#1f497d', '#4f81bd', '#c0504d', '#9bbb59', '#8064a2', '#4bacc6', '#f79646', '#f2f2f2', '#7f7f7f', '#ddd9c3', '#c6d9f0', '#dbe5f1', '#f2dcdb', '#ebf1de', '#e5e0ec', '#dbeef3', '#fdeada', '#d8d8d8', '#595959', '#c4bd97', '#8db3e2', '#b8cce4', '#e5b9b7', '#d7e3bc', '#ccc1d9', '#b7dde8', '#fbd5b5', '#bfbfbf', '#3f3f3f', '#938953', '#548dd4', '#95b3d7', '#d99694', '#c3d69b', '#b2a2c7', '#92cddc', '#fac08f', '#a5a5a5', '#262626', '#494429', '#17365d', '#366092', '#953734', '#76923c', '#5f497a', '#31859b', '#e36c09', '#7f7f7f', '#0c0c0c', '#1d1b10', '#0f243e', '#244061', '#632423', '#4f6128', '#3f3151', '#205867', '#974806'];
+            const std = ['#c00000', '#ff0000', '#ffc000', '#ffff00', '#92d050', '#00b050', '#00b0f0', '#0070c0', '#002060', '#7030a0'];
+            const tg = document.getElementById('themeColorsGrid'), sg = document.getElementById('standardColorsRow');
+            theme.forEach(c => { const d = document.createElement('div'); d.className = 'cp-cell'; d.style.backgroundColor = c; d.onclick = () => selectQuickColor(c); tg.appendChild(d); });
+            std.forEach(c => { const d = document.createElement('div'); d.className = 'cp-cell'; d.style.backgroundColor = c; d.onclick = () => selectQuickColor(c); sg.appendChild(d); });
+            document.addEventListener('click', () => document.getElementById('customColorPicker').style.display = 'none');
+            document.getElementById('customColorPicker').onclick = e => e.stopPropagation();
+        }
+
+        // --- Sections ---
+        function addDynamicSection() {
+            const id = 'dyn_' + Date.now();
+            const wrapper = document.createElement('div'); wrapper.className = 'dynamic-section'; wrapper.id = id;
+            wrapper.innerHTML = `
+                <button class="btn-remove-section" onclick="document.getElementById('${id}').remove()"><i class="fas fa-times"></i></button>
+                <div class="form-group"><label>추가 섹션 제목</label><input type="text" class="dyn-title" placeholder="소제목 입력"></div>
+                <div class="editor-container">
+                    ${TOOLBAR_HTML}
+                    <div class="editor-content-view paste-area dyn-content" contenteditable="true" placeholder="내용을 입력하세요..."></div>
+                </div>`;
+            document.getElementById('dynamicSections').appendChild(wrapper);
+            wrapper.querySelector('.paste-area').addEventListener('paste', handlePaste);
+        }
+
+        // --- Table ---
+        function openTableModal(e) {
+            const c = e.target.closest('.editor-container, .form-group'); if (c) lastFocusedEditor = c.querySelector('.editor-content-view');
+            document.getElementById('tableModal').style.display = 'block'; generateVisualTable();
         }
         function closeTableModal() { document.getElementById('tableModal').style.display = 'none'; }
         function generateVisualTable() {
-            const rows = document.getElementById('tblRows').value;
-            const cols = document.getElementById('tblCols').value;
-            let html = '<table class="visual-table"><thead><tr>';
-            for (let c = 0; c < cols; c++) html += `<th><input type="text" placeholder="제목"></th>`;
-            html += '</tr></thead><tbody>';
-            for (let r = 0; r < rows; r++) {
-                html += '<tr>';
-                for (let c = 0; c < cols; c++) html += `<td><input type="text" placeholder="내용"></td>`;
-                html += '</tr>';
-            }
-            html += '</tbody></table>';
-            document.getElementById('visualTableContainer').innerHTML = html;
+            const r = document.getElementById('tblRows').value, c = document.getElementById('tblCols').value;
+            let h = '<table class="visual-table"><thead><tr>';
+            for (let i = 0; i < c; i++) h += `<th><input type="text" placeholder="헤더"></th>`;
+            h += '</tr></thead><tbody>';
+            for (let i = 0; i < r; i++) { h += '<tr>'; for (let j = 0; j < c; j++) h += `<td><input type="text" placeholder="값"></td>`; h += '</tr>'; }
+            h += '</tbody></table>'; document.getElementById('visualTableContainer').innerHTML = h;
         }
         function insertTableFromModal() {
             if (!lastFocusedEditor) return;
-            const modalTable = document.querySelector('.visual-table');
-            let tableHtml = '<div class="tbl-scroll"><table style="width: 600px; border-collapse: collapse;" class="xfe_just_info"><thead><tr>';
-            modalTable.querySelectorAll('thead input').forEach(input => {
-                tableHtml += `<th style="border:1px solid #ccc; padding:8px; background:#ddd;">${input.value || '&nbsp;'}</th>`;
+            const mt = document.querySelector('.visual-table');
+            const editorWidth = lastFocusedEditor.getBoundingClientRect().width - 40;
+            const colCount = document.getElementById('tblCols').value;
+            const colWidth = (editorWidth / colCount).toFixed(2);
+
+            let th = `<div class="tbl-scroll"><table style="width:${editorWidth.toFixed(2)}px; table-layout:fixed; border-collapse:collapse;" class="xfe_just_info"><thead><tr>`;
+            mt.querySelectorAll('thead input').forEach(i => th += `<th style="border:1px solid #ccc; padding:10px; background:#f4f4f4; font-weight:bold; width:${colWidth}px;">${i.value || '&nbsp;'}</th>`);
+            th += '</tr></thead><tbody>';
+            mt.querySelectorAll('tbody tr').forEach(row => {
+                th += '<tr>'; row.querySelectorAll('input').forEach(i => th += `<td style="border:1px solid #ccc; padding:10px; text-align:center;">${i.value || '&nbsp;'}</td>`); th += '</tr>';
             });
-            tableHtml += '</tr></thead><tbody>';
-            modalTable.querySelectorAll('tbody tr').forEach(row => {
-                tableHtml += '<tr>';
-                row.querySelectorAll('input').forEach(input => {
-                    tableHtml += `<td style="border:1px solid #ccc; padding:8px;">${input.value || '&nbsp;'}</td>`;
-                });
-                tableHtml += '</tr>';
-            });
-            tableHtml += '</tbody></table></div><p><br></p>';
-            lastFocusedEditor.focus();
-            insertHTML(tableHtml);
-            closeTableModal();
+            th += '</tbody></table></div><p><br></p>';
+            lastFocusedEditor.focus(); insertHTML(th); closeTableModal();
         }
 
-        // --- Section Management ---
-        function addDynamicSection() {
-            const id = 'dyn_' + Date.now();
-            const html = `
-                <div class="dynamic-section" id="${id}">
-                    <button class="btn-remove-section" onclick="removeSection('${id}')"><i class="fas fa-trash-alt"></i></button>
-                    <div class="form-group">
-                        <label>추가 섹션 제목</label>
-                        <input type="text" class="dyn-title" placeholder="소제목 입력">
-                    </div>
-                    <div class="editor-container">
-                        <div class="editor-toolbar">
-                            <button onclick="insertFormat('bold')"><i class="fas fa-bold"></i></button>
-                            <button onclick="insertFormat('italic')"><i class="fas fa-italic"></i></button>
-                            <button onclick="insertFormat('insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
-                            <button onclick="insertFormat('insertOrderedList')"><i class="fas fa-list-ol"></i></button>
-                            <button onclick="openTableModal(event)"><i class="fas fa-table"></i></button>
-                            <button onclick="clearEditor(this)" style="margin-left:auto;"><i class="fas fa-trash-alt"></i></button>
-                        </div>
-                        <div class="editor-content-view paste-area dyn-content" contenteditable="true" placeholder="내용을 입력하세요..."></div>
-                    </div>
-                </div>`;
-            document.getElementById('dynamicSections').insertAdjacentHTML('beforeend', html);
-            document.getElementById(id).querySelector('.paste-area').addEventListener('paste', handlePaste);
-        }
-        function removeSection(id) { const el = document.getElementById(id); if (el) el.remove(); }
-
-        // --- Paste Handling ---
+        // --- Paste & HTML ---
         function handlePaste(e) {
-            const data = e.clipboardData;
-            const text = data.getData('text');
-            // Excel paste
-            if (text && text.indexOf('\t') !== -1) {
+            const d = e.clipboardData, t = d.getData('text/plain');
+            if (t && t.indexOf('\t') !== -1) {
                 e.preventDefault();
-                const lines = text.trim().split(/\r\n|\n|\r/);
-                let maxCols = 0;
-                const rows = lines.map(line => {
-                    const cols = line.split('\t');
-                    if (cols.length > maxCols) maxCols = cols.length;
-                    return cols;
-                });
-                const tableId = 'extbl_' + Date.now();
-                const defaultWidth = 100;
+                const lines = t.trim().split(/\r\n|\n|\r/), rows = lines.map(line => line.split('\t')), max = Math.max(...rows.map(r => r.length));
+                const editorRect = e.currentTarget.getBoundingClientRect();
+                const editorWidth = editorRect.width - 40;
+                const colWidth = (editorWidth / max).toFixed(2);
 
-                // 열 너비 조절 컨트롤
-                let controlsHtml = `<div class="table-width-controls" contenteditable="false">`;
-                controlsHtml += '<span class="tw-label">📏 열 너비:</span>';
-                for (let c = 0; c < maxCols; c++) {
-                    controlsHtml += `<div class="tw-col-group">`;
-                    controlsHtml += `<span class="tw-col-label">${c + 1}</span>`;
-                    controlsHtml += `<input type="number" value="${defaultWidth}" min="30" max="800" step="10"`;
-                    controlsHtml += ` onchange="updateColWidth('${tableId}', ${c}, this.value)"`;
-                    controlsHtml += ` oninput="updateColWidth('${tableId}', ${c}, this.value)"`;
-                    controlsHtml += ` onclick="event.stopPropagation()" />`;
-                    controlsHtml += `<span class="tw-unit">px</span></div>`;
-                }
-                controlsHtml += '</div>';
-
-                // colgroup 기반 테이블
-                let tableHtml = `<div class="tbl-scroll" data-table-id="${tableId}"><table style="border-collapse:collapse; table-layout:fixed;" class="xfe_just_info"><colgroup>`;
-                for (let c = 0; c < maxCols; c++) {
-                    tableHtml += `<col style="width:${defaultWidth}px;">`;
-                }
-                tableHtml += '</colgroup><thead><tr>';
-                rows[0].forEach(cell => tableHtml += `<th style="border:1px solid #ccc; padding:8px; background:#ddd;">${cell}</th>`);
-                for (let i = rows[0].length; i < maxCols; i++) tableHtml += '<th style="border:1px solid #ccc; padding:8px; background:#ddd;">&nbsp;</th>';
-                tableHtml += '</tr></thead><tbody>';
-                for (let i = 1; i < rows.length; i++) {
-                    tableHtml += '<tr>';
-                    rows[i].forEach(cell => tableHtml += `<td style="border:1px solid #ccc; padding:8px;">${cell}</td>`);
-                    for (let j = rows[i].length; j < maxCols; j++) tableHtml += '<td style="border:1px solid #ccc; padding:8px;">&nbsp;</td>';
-                    tableHtml += '</tr>';
-                }
-                tableHtml += '</tbody></table></div><p><br></p>';
-                insertHTML(controlsHtml + tableHtml);
-                // 드래그 리사이즈 초기화
-                setTimeout(() => initTableResize(tableId), 50);
-                return;
+                let h = `<div class="tbl-scroll"><table style="width:${editorWidth.toFixed(2)}px; table-layout:fixed; border-collapse:collapse;" class="xfe_just_info"><thead><tr>`;
+                rows[0].forEach(c => h += `<th style="border:1px solid #ccc; padding:10px; background:#f4f4f4; font-weight:bold; width:${colWidth}px;">${c}</th>`);
+                for (let i = rows[0].length; i < max; i++) h += `<th style="border:1px solid #ccc; padding:10px; background:#f4f4f4; width:${colWidth}px;">&nbsp;</th>`;
+                h += '</tr></thead><tbody>';
+                for (let i = 1; i < rows.length; i++) { h += '<tr>'; rows[i].forEach(c => h += `<td style="border:1px solid #ccc; padding:10px; text-align:center;">${c}</td>`); for (let j = rows[i].length; j < max; j++) h += '<td style="border:1px solid #ccc; padding:10px;">&nbsp;</td>'; h += '</tr>'; }
+                h += '</tbody></table></div><p><br></p>'; insertHTML(h); return;
             }
-            // Image paste
-            for (let item of data.items) {
+            if (t && t.trim().length > 0) { e.preventDefault(); insertHTML(t.replace(/\n/g, '<br>')); return; }
+            for (let item of d.items) {
                 if (item.type.startsWith('image/')) {
-                    e.preventDefault();
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        insertHTML(`<div class="img-only" style="text-align:left;"><img src="${event.target.result}" class="xfe_just_info"></div><p><br></p>`);
-                    };
-                    reader.readAsDataURL(item.getAsFile());
+                    e.preventDefault(); const reader = new FileReader();
+                    reader.onload = ev => insertHTML(`<div class="img-only"><img src="${ev.target.result}" style="max-width:100%; height:auto; border:1px solid #eee;"></div><p><br></p>`);
+                    reader.readAsDataURL(item.getAsFile()); break;
                 }
             }
         }
-        document.querySelectorAll('.paste-area').forEach(el => el.addEventListener('paste', handlePaste));
-
-        // --- Column Width Update ---
-        function updateColWidth(tableId, colIndex, value) {
-            const wrapper = document.querySelector(`[data-table-id="${tableId}"]`);
-            if (!wrapper) return;
-            const cols = wrapper.querySelectorAll('colgroup col');
-            if (cols[colIndex]) {
-                cols[colIndex].style.width = value + 'px';
-            }
-            // 숫자 입력 필드도 동기화
-            const controls = wrapper.previousElementSibling;
-            if (controls && controls.classList.contains('table-width-controls')) {
-                const inputs = controls.querySelectorAll('input[type="number"]');
-                if (inputs[colIndex]) {
-                    inputs[colIndex].value = Math.round(value);
-                }
-            }
-        }
-
-        // --- Column Drag Resize (이벤트 위임 방식) ---
-        let colResizeState = null;
-
-        function getCellColIndex(cell) {
-            // 셀이 속한 열 인덱스 반환
-            let idx = 0;
-            let prev = cell.previousElementSibling;
-            while (prev) {
-                idx++;
-                prev = prev.previousElementSibling;
-            }
-            return idx;
-        }
-
-        function getTableIdFromCell(cell) {
-            const tblScroll = cell.closest('.tbl-scroll');
-            return tblScroll ? tblScroll.getAttribute('data-table-id') : null;
-        }
-
-        function isNearRightBorder(cell, mouseX) {
-            const rect = cell.getBoundingClientRect();
-            return (rect.right - mouseX) <= 6;
-        }
-
-        function isNearLeftBorder(cell, mouseX) {
-            const rect = cell.getBoundingClientRect();
-            return (mouseX - rect.left) <= 6;
-        }
-
-        function initTableResize(tableId) {
-            const wrapper = document.querySelector(`[data-table-id="${tableId}"]`);
-            if (!wrapper) return;
-            const table = wrapper.querySelector('table');
-            if (!table) return;
-
-            // 마우스 이동 시 경계선 근처면 커서 변경
-            table.addEventListener('mousemove', (e) => {
-                if (colResizeState) return; // 드래그 중에는 무시
-                const cell = e.target.closest('th, td');
-                if (!cell) { table.style.cursor = ''; return; }
-                if (isNearRightBorder(cell, e.clientX)) {
-                    table.style.cursor = 'col-resize';
-                } else if (isNearLeftBorder(cell, e.clientX) && cell.previousElementSibling) {
-                    table.style.cursor = 'col-resize';
-                } else {
-                    table.style.cursor = '';
-                }
-            });
-
-            table.addEventListener('mouseleave', () => {
-                if (!colResizeState) table.style.cursor = '';
-            });
-
-            // 마우스 다운 시 드래그 시작
-            table.addEventListener('mousedown', (e) => {
-                const cell = e.target.closest('th, td');
-                if (!cell) return;
-
-                let targetColIdx = -1;
-                if (isNearRightBorder(cell, e.clientX)) {
-                    targetColIdx = getCellColIndex(cell);
-                } else if (isNearLeftBorder(cell, e.clientX) && cell.previousElementSibling) {
-                    targetColIdx = getCellColIndex(cell) - 1;
-                }
-
-                if (targetColIdx < 0) return;
-                e.preventDefault();
-                e.stopPropagation();
-
-                // 헤더 첫 행의 실제 렌더링된 너비 사용 (갑자기 커지는 버그 방지)
-                const headerCells = table.querySelectorAll('thead tr:first-child th');
-                const startWidth = headerCells[targetColIdx] ? headerCells[targetColIdx].getBoundingClientRect().width : 100;
-
-                colResizeState = {
-                    tableId: tableId,
-                    colIndex: targetColIdx,
-                    startX: e.clientX,
-                    startWidth: startWidth
-                };
-                document.body.classList.add('col-resizing');
-            });
-        }
-
-        window.addEventListener('mousemove', (e) => {
-            if (!colResizeState) return;
-            e.preventDefault();
-            const diff = e.clientX - colResizeState.startX;
-            const newWidth = Math.max(30, colResizeState.startWidth + diff);
-            updateColWidth(colResizeState.tableId, colResizeState.colIndex, newWidth);
-        });
-
-        window.addEventListener('mouseup', () => {
-            if (colResizeState) {
-                document.body.classList.remove('col-resizing');
-                colResizeState = null;
-            }
-        });
 
         function generateHTML() {
-            // Modification (Summary) Data
-            const infoData = [
-                { title: document.getElementById('info_title_bg').value, val: document.getElementById('info_bg').value },
-                { title: document.getElementById('info_title_product').value, val: document.getElementById('info_product').value },
-                { title: document.getElementById('info_title_symptom').value, val: document.getElementById('info_symptom').value },
-                { title: document.getElementById('info_title_parts').value, val: document.getElementById('info_partInfo').value }
-            ];
+            const infoIds = [['배경', 'info_bg'], ['제품', 'info_product'], ['증상', 'info_symptom'], ['부품 정보', 'info_partInfo']];
+            let ih = '';
+            infoIds.filter(([l, id]) => document.getElementById(id).innerText.trim().length > 0 || document.getElementById(id).querySelector('img, table')).forEach(([l, id]) => {
+                ih += `<div style="margin-bottom:15px;"><div style="margin-bottom:6px;"><span style="background-color:#e2e2e2; padding:3px 12px; border-radius:4px; font-weight:bold; font-size:14px;">※ ${l}</span></div><div style="font-size:14px; padding-left:10px;">${document.getElementById(id).innerHTML}</div></div>`;
+            });
+            if (ih) ih = `<div style="margin:20px 0; border:1px solid #eee; padding:20px; border-radius:10px; background-color:#fafafa;">${ih}</div>`;
 
-            let summaryHtml = '<div class="summary-box" style="margin-bottom: 25px;">';
-            let summaryItems = 0;
+            let idx = 1, ch = ih;
+            const add = (t, c) => {
+                const has = c.trim().replace(/<br>/g, '').length > 0 || c.includes('<img') || c.includes('<table');
+                ch += `<h3 class="sub-tit ${has ? '' : 'no-content'}"><span class="num">${idx++}</span>${t}</h3>${has ? c : ''}`;
+            };
+            add(document.getElementById('inSymptomTitle').value, document.getElementById('inSymptom').innerHTML);
+            add(document.getElementById('inCauseTitle').value, document.getElementById('inCause').innerHTML);
+            add(document.getElementById('inRepairTitle').value, document.getElementById('inRepairMethod').innerHTML);
+            document.querySelectorAll('.dynamic-section').forEach(s => add(s.querySelector('.dyn-title').value || '섹션', s.querySelector('.dyn-content').innerHTML));
 
-            infoData.forEach(item => {
-                if (item.val && item.val.trim().length > 0) {
-                    const formattedVal = (item.val || '').replace(/\n/g, '<br>');
-                    summaryHtml += `
-                        <div class="summary-item" style="margin-bottom: 15px;">
-                            <div class="summary-title" style="display: flex; align-items: center; gap: 8px; font-weight: bold; margin-bottom: 6px; font-size: 16px;">
-                                <span style="font-size: 10px; color: #000;">●</span> ${item.title}
-                            </div>
-                            <div class="summary-content" style="background: #f2f2f2; padding: 12px 15px; border-radius: 4px; font-size: 14px; line-height: 1.6; color: #333;">
-                                ${formattedVal}
-                            </div>
-                        </div>`;
-                    summaryItems++;
+            // Wrap result to handle absolute children positioning in the container
+            const finalCh = `<div style="position:relative; min-height:400px; width:100%;">${ch}</div>`;
+            document.getElementById('previewContainer').innerHTML = `<div class="content-service-view" style="padding:20px;">${finalCh}</div>`;
+
+            const out = `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><style>.content-service-view{font-family:'Noto Sans KR',sans-serif;line-height:1.6;color:#333;max-width:800px;margin:0 auto;padding:20px;text-align:left;}.sub-tit{position:relative;padding-left:25px;margin:30px 0 10px;font-size:18px;font-weight:bold}.sub-tit .num{position:absolute;left:0;top:2px;width:20px;height:20px;background:#999;color:#fff;border-radius:50%;text-align:center;font-size:12px;line-height:20px;display:inline-block}.tbl-scroll{overflow-x:auto;margin:15px 0}.tbl-scroll table{width:100%;border-collapse:collapse;min-width:600px}.tbl-scroll th,.tbl-scroll td{border:1px solid #ccc;padding:12px;text-align:center}.tbl-scroll th{background:#f4f4f4}.img-only{margin:20px 0;text-align:left}.img-only img{max-width:100%;height:auto;border:1px solid #eee} p{margin:10px 0}</style></head><body><div class="content-service-view" style="position:relative; min-height:600px;">${ch}</div></body></html>`;
+            document.getElementById('codeOutput').value = out;
+            if (window.innerWidth <= 1024) switchTab('preview');
+        }
+
+        function copyCode() { const v = document.getElementById('codeOutput').value; if (!v) return alert('변환 버튼을 먼저 눌러주세요.'); navigator.clipboard.writeText(v).then(() => alert('코드가 복사되었습니다.')); }
+        function switchTab(t) {
+            document.querySelectorAll('.mobile-tabs button').forEach(b => b.classList.remove('active'));
+            document.getElementById('btnTab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('active');
+            document.querySelector('.editor-panel').style.display = (t === 'edit' ? 'block' : 'none');
+            document.querySelector('.preview-panel').style.display = (t === 'preview' ? 'block' : 'none');
+        }
+
+        // --- Init ---
+        window.addEventListener('DOMContentLoaded', () => {
+            initColorPicker();
+            // Assign toolbar and editor events
+            const tb = document.getElementById('mainToolbar');
+            if (tb) {
+                tb.innerHTML = TOOLBAR_HTML + `<button class="btn-primary" onclick="generateHTML()" style="margin-left:auto; background:var(--lg-red); color:#fff; border:none; padding:8px 20px; border-radius:6px; font-weight:700;"><i class="fas fa-magic"></i> 변환하기</button>`;
+            }
+
+            const ed = document.getElementById('mainInfo');
+            if (ed) {
+                ed.addEventListener('paste', handlePaste);
+                ed.addEventListener('focus', () => { lastFocusedEditor = ed; saveSelectionState(); });
+                ed.addEventListener('mouseup', saveSelectionState);
+                ed.addEventListener('keyup', saveSelectionState);
+                lastFocusedEditor = ed;
+            }
+            // Resize handle logic
+            const h = document.getElementById('codeResizeHandle'), t = document.getElementById('codeOutput');
+            if (h && t) {
+                h.onmousedown = (e) => { isR = true; sY = e.clientY; sH = t.offsetHeight; document.body.style.cursor = 'ns-resize'; e.preventDefault(); };
+            }
+
+            // Table Resize (Unified Row & Column)
+
+            document.addEventListener('mousedown', e => {
+                const cell = e.target.closest('.editor-content-view td, .editor-content-view th');
+                if (!cell) return;
+
+                const rect = cell.getBoundingClientRect();
+                const isRightEdge = Math.abs(e.clientX - rect.right) < 20;
+                const isLeftEdge = Math.abs(e.clientX - rect.left) < 20;
+                const isBottomEdge = Math.abs(e.clientY - rect.bottom) < 20;
+
+                const tbl = cell.closest('table');
+                if (!tbl) return;
+
+                if (isRightEdge || isLeftEdge || isBottomEdge) {
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    if (isRightEdge || isLeftEdge) {
+                        isPendingColResize = true;
+                        targetCell = isRightEdge ? cell : cell.previousElementSibling;
+                    } else {
+                        isPendingRowResize = true;
+                        targetRow = cell.parentElement;
+                    }
+                    // Prevent text selection during pending resize
+                    document.body.style.userSelect = 'none';
                 }
             });
-            summaryHtml += '</div>';
-            if (summaryItems === 0) summaryHtml = '';
 
-            // Sections
-            let contentHtml = summaryHtml;
-            let idx = 1;
-            const addSec = (title, html) => {
-                // 열 너비 조절 컨트롤 제거 (출력에서 제외)
-                const cleanHtml = html.replace(/<div class="table-width-controls"[^>]*>[\s\S]*?<\/div>(?=\s*<div class="tbl-scroll")/gi, '');
-                const hasHtml = cleanHtml.replace(/<[^>]*>?/gm, '').trim().length > 0 || cleanHtml.includes('<img') || cleanHtml.includes('<table');
-                contentHtml += `<h3 class="sub-tit ${hasHtml ? '' : 'no-content'}"><span class="num">${idx++}</span>${title}</h3>${hasHtml ? cleanHtml : ''}`;
-            };
+            function startColResize(e) {
+                if (!targetCell) return;
+                const tbl = targetCell.closest('table');
+                if (!tbl) return;
 
-            addSec(document.getElementById('inSymptomTitle').value, document.getElementById('inSymptom').innerHTML);
-            addSec(document.getElementById('inCauseTitle').value, document.getElementById('inCause').innerHTML);
-            addSec(document.getElementById('inRepairTitle').value, document.getElementById('inRepairMethod').innerHTML);
+                isColResizing = true;
+                const cellRect = targetCell.getBoundingClientRect();
+                const tblRect = tbl.getBoundingClientRect();
+                startW = cellRect.width;
+                startTableW = tblRect.width;
 
-            document.querySelectorAll('.dynamic-section').forEach(sec => {
-                addSec(sec.querySelector('.dyn-title').value || '추가 섹션', sec.querySelector('.dyn-content').innerHTML);
-            });
+                const firstRow = tbl.rows[0];
+                if (firstRow) {
+                    for (let i = 0; i < firstRow.cells.length; i++) {
+                        const c = firstRow.cells[i];
+                        c.style.width = c.getBoundingClientRect().width.toFixed(2) + 'px';
+                    }
+                }
+                tbl.style.width = startTableW.toFixed(2) + 'px';
+                tbl.style.tableLayout = 'fixed';
+                document.body.style.cursor = 'ew-resize';
+                e.preventDefault();
+            }
 
-            // Preview
-            document.getElementById('previewContainer').innerHTML = `<div class="content-service-view" style="padding:15px;">${contentHtml}</div>`;
-
-            // Code Output
-            const fullOutput = `
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        .content-service-view { font-family: 'Noto Sans KR', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0; padding: 20px; text-align: left; }
-        .summary-item { margin-bottom: 20px; }
-        .summary-title { font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; font-size: 16px; color: #000; }
-        .summary-content { background: #f2f2f2; padding: 12px 18px; border-radius: 4px; font-size: 14px; line-height: 1.6; }
-        .sub-tit { position: relative; padding-left: 25px; margin: 35px 0 15px; font-size: 18px; font-weight: bold; color: #000; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .sub-tit .num { position: absolute; left: 0; top: 2px; width: 20px; height: 20px; background: #ec455a; color: #fff; border-radius: 50%; text-align: center; font-size: 12px; line-height: 20px; display: inline-block; }
-        .sub-tit.no-content { margin-top: 20px; }
-        .tbl-scroll { overflow-x: auto; margin: 20px 0; border: 1px solid #eee; border-radius: 4px; }
-        .tbl-scroll table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        .tbl-scroll th, .tbl-scroll td { border: 1px solid #eee; padding: 12px; text-align: center; }
-        .tbl-scroll th { background: #f9f9f9; font-weight: bold; }
-        .img-only { margin: 25px 0; text-align: left; }
-        .img-only img { max-width: 100%; height: auto; border: 1px solid #eee; border-radius: 4px; }
-        p { margin: 12px 0; }
-    </style>
-</head>
-<body>
-    <div class="content-service-view">
-        ${contentHtml}
-    </div>
-</body>
-</html>`.trim();
-            document.getElementById('codeOutput').value = fullOutput;
-        }
-
-        function copyCode() {
-            const code = document.getElementById('codeOutput').value;
-            if (!code) return alert('먼저 변환 버튼을 눌러주세요.');
-            navigator.clipboard.writeText(code).then(() => alert('코드가 복사되었습니다.'));
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.mobile-tabs button').forEach(b => b.classList.remove('active'));
-            document.getElementById('btnTab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.add('active');
-            document.querySelector('.editor-panel').style.display = (tabId === 'edit' ? 'block' : 'none');
-            document.querySelector('.preview-panel').style.display = (tabId === 'preview' ? 'block' : 'none');
-        }
-
-        window.onclick = (e) => { if (e.target.className === 'modal') closeTableModal(); };
-
-        // --- Custom Resize Logic ---
-        (function () {
-            const handle = document.getElementById('codeResizeHandle');
-            const target = document.getElementById('codeOutput');
-            let isResizing = false;
-            let startY, startHeight;
-
-            handle.addEventListener('mousedown', (e) => {
-                isResizing = true;
-                startY = e.clientY;
-                startHeight = target.offsetHeight;
+            function startRowResize(e) {
+                if (!targetRow) return;
+                isRowResizing = true;
+                startH = targetRow.offsetHeight;
                 document.body.style.cursor = 'ns-resize';
                 e.preventDefault();
-            });
+            }
 
-            window.addEventListener('mousemove', (e) => {
-                if (!isResizing) return;
-                // 올리면(위로 가면 clientY가 작아짐) 시작높이 + (시작Y - 현재Y) -> 높이가 늘어남
-                // 내리면(아래로 가면 clientY가 커짐) 시작높이 - (현재Y - 시작Y) -> 높이가 줄어듦
-                const diff = startY - e.clientY;
-                const newHeight = Math.max(100, startHeight + diff);
-                target.style.height = newHeight + 'px';
+            // Combined Optimized Global Mouse Movements
+            let mouseTimer = null;
+            window.addEventListener('mousemove', e => {
+                const curX = e.clientX, curY = e.clientY;
+                if (mouseTimer) return;
+                mouseTimer = requestAnimationFrame(() => {
+                    // Check if we should start resizing (threshold to prevent jump on click)
+                    if (!isColResizing && !isRowResizing) {
+                        if (isPendingColResize || isPendingRowResize) {
+                            const dist = Math.sqrt(Math.pow(curX - startX, 2) + Math.pow(curY - startY, 2));
+                            if (dist > 3) {
+                                if (isPendingColResize) startColResize(e);
+                                else if (isPendingRowResize) startRowResize(e);
+                            }
+                        }
+                    }
+
+                    // 1. Table Resize
+                    if (isColResizing && targetCell) {
+                        const diff = curX - startX;
+                        const newW = Math.max(30, startW + diff);
+                        const tbl = targetCell.closest('table');
+                        if (tbl && tbl.rows.length > 0) {
+                            const colIndex = targetCell.cellIndex;
+                            const masterCell = tbl.rows[0].cells[colIndex];
+                            if (masterCell) masterCell.style.width = newW + 'px';
+                            tbl.style.width = (startTableW + (newW - startW)) + 'px';
+                        }
+                    } else if (isRowResizing && targetRow) {
+                        const diff = curY - startY;
+                        const newH = Math.max(25, startH + diff);
+                        targetRow.style.height = newH + 'px';
+                        for (let i = 0; i < targetRow.cells.length; i++) {
+                            targetRow.cells[i].style.height = newH + 'px';
+                        }
+                    } else if (!isColResizing && !isRowResizing && !isR) {
+                        const cell = e.target.closest('.editor-content-view td, .editor-content-view th');
+                        if (cell) {
+                            const rect = cell.getBoundingClientRect();
+                            const isEdgeX = Math.abs(curX - rect.right) < 20 || Math.abs(curX - rect.left) < 20;
+                            const isEdgeY = Math.abs(curY - rect.bottom) < 20;
+                            if (isEdgeX) e.target.style.cursor = 'ew-resize';
+                            else if (isEdgeY) e.target.style.cursor = 'ns-resize';
+                            else e.target.style.cursor = '';
+                        }
+                    }
+
+                    // 5. Code Area Resize
+                    if (isR) {
+                        t.style.height = Math.max(100, sH + (sY - curY)) + 'px';
+                    }
+
+                    mouseTimer = null;
+                });
             });
 
             window.addEventListener('mouseup', () => {
-                if (isResizing) {
-                    isResizing = false;
-                    document.body.style.cursor = 'default';
-                }
+                isRowResizing = false;
+                isColResizing = false;
+                isPendingColResize = false;
+                isPendingRowResize = false;
+                isR = false;
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
             });
-        })();
+        });
+
+        window.onclick = (e) => { if (e.target.className === 'modal') closeTableModal(); };
     </script>
 </body>
 
